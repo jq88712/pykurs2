@@ -1,6 +1,6 @@
 import pandas as pd
 
-def calc_recency(sellers, time):
+def calc_recency(sellers:pd.Series, time:pd.Series) -> dict:
     latest = max(pd.to_datetime(time).dt.date)
     start = min(pd.to_datetime(time).dt.date)
     recency = {}
@@ -19,7 +19,7 @@ def calc_recency(sellers, time):
     
     return recency
 
-def calc_frequency(sellers: pd.Series):
+def calc_frequency(sellers:pd.Series) -> dict:
     unique_sellers = sellers.unique()
     counts = []
 
@@ -34,7 +34,7 @@ def calc_frequency(sellers: pd.Series):
 
     return dict(zip(unique_sellers,counts))
 
-def calc_monetary(orders, prices, sellers):
+def calc_monetary(orders:pd.Series, prices:pd.Series, sellers:pd.Series) -> dict:
     frame = {'orders':orders, 'prices': prices, 'sellers': sellers}
     df = pd.DataFrame(frame)
     orders_revenues = df.groupby(by='orders').sum()
@@ -43,7 +43,32 @@ def calc_monetary(orders, prices, sellers):
     
     return  dict(zip(seller_revenues.index,seller_revenues.prices_y))
 
-def create_rfm_df(sellers, orders, prices, time, rfm_range) -> pd.DataFrame:
+def create_rfm_df(sellers:pd.Series, orders:pd.Series, prices:pd.Series, time:pd.Series, rfm_range:int) -> pd.DataFrame:
+    
+    """Function which calculate the RFM score of each customer by calculation each R/F/M dimension to divide into classes. Lastly the mean is calculated of each seller over the 3 dimensions.
+
+    Parameters
+    ----------
+    sellers : pd.Series
+        Variable containing seller ids
+    
+    orders : pd.Series
+        Variable containing order ids
+
+    prices : pd.Series
+        Variable containing item prices
+
+    time : pd.Series
+        Variable containing order time stamps
+
+    rfm_range : int
+        Number of classes for scores
+    
+    Returns
+    -------
+    pd.DataFrame
+        Dataframe with sellers, calculated base information, R/F/M scores and RFM score
+    """    
     labels = range(1, (rfm_range+1))
     scores = pd.DataFrame()
     scores['seller_id'] = sellers.unique()
@@ -54,4 +79,4 @@ def create_rfm_df(sellers, orders, prices, time, rfm_range) -> pd.DataFrame:
     scores['frequency'] = pd.qcut(scores.count_orders,q=rfm_range, labels=labels)
     scores['monetary_ratio'] = pd.qcut(scores.revenues,q=rfm_range, labels=labels)
     scores['rfm_score'] = scores[['recency','frequency', 'monetary_ratio']].mean(axis=1).round(0)
-    return scores
+    return scores  
