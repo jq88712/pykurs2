@@ -182,7 +182,7 @@ Strictly speaking we have three DAG / flows:
 
 1. The DAG that describes the entire technical software product. Here not only datasets are moved from node to node, but also functions (e.g. from training - at least in the first view).
 2. The DAG that describes not all aspects of that first DAG, and focus on nodes that map spaces to spaces. This is more helpful during conceptualization. Here we usually omit things like training, or dataset splits (e.g. for training, testing, etc.).
-3. The DAG that describes the work that the humand developer does.
+3. The DAG that describes the work that the human developer does.
 
 ----------------------------------
 

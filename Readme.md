@@ -16,12 +16,49 @@ For companies which are have indirect selling channels or are acting as an onlin
 
 A simple RFM scoring model is chosen to determine the individual score of existing B2B customers. Each dimension is calculated individually and afterwards summed up to the final score. The dimensions are calculated as following
 
-- **Recency**: Latest order timestamp in dataset - latest order timestamp per B2B customer
+- **Recency**: Latest order timestamp in dataset minus latest order timestamp per B2B customer
 - **Frequency**: Sum of all order per seller
 - **Monetary**: Sum of all order sales volumes per seller
 
 </br>
 
 ## **Dataflows**
+In order to understand the development logic behind this project the main flows of data and human work are visualized in Directed Acyclic Graphs (DAG). For this purpose two different types of DAGs are provided.
+### **Transformation of data spaces**
+In this version of the DAG the transformation of data spaces are represented as two different flows. The first flow (grey flow line) is designed for the transformation of data from existing business partners where all the data for score calculation is provided. In order to be able to also provide a score for new business partners the second flow (black flow line) is designed where based on existing partners data and pertners attributes are predictive model is trained and applied on new partners.
+
 </br>
-<img src='Dataflow_DAG.svg'/>
+<img src='dag_space_flow.svg'/>
+</br>
+</br>
+
+### **Human Workflow**
+In this version of the DAG the human workflow of this project is shown. It contains also aspects of data exploration and data selection which is part of the experimental phase of this project.
+
+</br>
+<img src='dag_human_workflow.svg'/>
+</br>
+</br>
+
+## **Instructions**
+
+In order to execute the code of this repository, the [main.py](src/api/main.py) has to be executed in the CMD of your computer. Before the file can be executed, you have to navigate to the projects directory (e.g. cd command for windows). Following all the possible execution commands are described and displayed.
+
+**New customers and training needed**
+```
+python src/api/main.py --customers_type new --train yes
+```
+
+**New customers and no training needed**
+```
+python src/api/main.py --customers_type new --train no
+```
+
+**Existing customers**
+```
+python src/api/main.py --customers_type old
+```
+
+*Note:* 
+
+Arguments for the [main.py](src/api/main.py) are simplified to show the usage of ArgumentParser. Therefore more arguments could be added to be more flexible during execution.

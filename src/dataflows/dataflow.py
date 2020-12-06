@@ -17,7 +17,7 @@ def flow_train(path:str, merge_df:list[pd.DataFrame], scores:pd.DataFrame) -> No
         Dataframes that need to be merged
     
     scores : pd.DataFrame
-        Dataframe with RFM scores of existing sellers 
+        Dataframe with RFM scores of existing sellers
 
     Returns
     -------
@@ -44,7 +44,7 @@ def flow_old(merge_df:list[pd.DataFrame], key1:str, key2:str, rfm_range:int, rfm
     Parameters
     ----------
     merge_df : list[pd.DataFrame]
-        Dataframes that need to be merged. Order in list is order of merging. Merging is limited to 3 dataframes.
+        Dataframes that need to be merged. Order in list is order of merging. Merging is limited to 3 dataframes
 
     key1 : str
         Key to merge first and second dataframe in merge_df
