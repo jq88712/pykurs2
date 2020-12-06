@@ -1,1 +1,0 @@
-python src/api/main.py --customers_type new --train yes
