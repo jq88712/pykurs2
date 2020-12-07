@@ -2,12 +2,15 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import LabelEncoder
 
+#TODO: "transform_data" ist sehr generisch
+
 def merge_dfs(df_merge:list, merge_var:str, drop_vars:list, na:list) -> pd.DataFrame:
     df = pd.merge(df_merge[0], df_merge[1], on=merge_var, how='left')
     df = df.drop(drop_vars, axis=1)
     df = df.dropna(subset=na)
     return df
 
+#TODO: Name "df" ist nicht gerade gut
 def create_bool_dummies(df:pd.DataFrame, var_list:list, rep_list:list) -> pd.DataFrame:
     for var in var_list:
         df[var] = df[var].replace(to_replace=rep_list ,value= np.nan)

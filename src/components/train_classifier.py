@@ -11,6 +11,8 @@ def train_classifier(df:pd.DataFrame, feature_cols:list[str], target:str, test_s
     model = classifier.fit(X_train, y_train)
     return model, X_test, y_test
 
+#TODO: get_reports scheint immer mit train_classifier aufzutauchen - warum kein object hier?, dann kann man die objecte halten.
+
 def get_reports(model:LogisticRegressionCV, X_test:list, y_test:list) -> None:
     y_pred = model.predict(X_test)
     print(classification_report(y_test, y_pred))

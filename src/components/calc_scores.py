@@ -43,6 +43,7 @@ def calc_monetary(orders:pd.Series, prices:pd.Series, sellers:pd.Series) -> dict
     
     return  dict(zip(seller_revenues.index,seller_revenues.prices_y))
 
+#TODO: def create_rfm_df(commerce, rfm_vars, rfm_range:int) -> pd.DataFrame:
 def create_rfm_df(sellers:pd.Series, orders:pd.Series, prices:pd.Series, time:pd.Series, rfm_range:int) -> pd.DataFrame:
     
     """Function which calculate the RFM score of each customer by calculation each R/F/M dimension to divide into classes. Lastly the mean is calculated of each seller over the 3 dimensions.
@@ -68,7 +69,13 @@ def create_rfm_df(sellers:pd.Series, orders:pd.Series, prices:pd.Series, time:pd
     -------
     pd.DataFrame
         Dataframe with sellers, calculated base information, R/F/M scores and RFM score
-    """    
+    """
+	#TODO:
+    # sellers=commerce[rfm_vars[0]]
+    # orders=commerce[rfm_vars[1]]
+    # prices=commerce[rfm_vars[2]]
+    # time=commerce[rfm_vars[3]]
+
     labels = range(1, (rfm_range+1))
     scores = pd.DataFrame()
     scores['seller_id'] = sellers.unique()

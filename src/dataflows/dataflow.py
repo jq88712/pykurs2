@@ -37,6 +37,7 @@ def flow_train(path:str, merge_df:list[pd.DataFrame], scores:pd.DataFrame) -> No
 
     return print(get_reports(model, X_test, y_test))
 
+#TODO: Statt einer Liste merge_df, lieber drei merge_df verwenden
 def flow_old(merge_df:list[pd.DataFrame], key1:str, key2:str, rfm_range:int, rfm_vars:list[pd.Series]) -> pd.DataFrame:
 
     """Dataflow to calculate RFM scores for existing customers based on past data.
@@ -55,6 +56,8 @@ def flow_old(merge_df:list[pd.DataFrame], key1:str, key2:str, rfm_range:int, rfm
     rfm_range : int
         Number of classes for RFM scores
 
+	#TODO: Das sollte wohl eher eine list[str] sein
+
     rfm_vars : list[pd.Series]
         List of variables needed to calculate the RFM scores
 
@@ -63,8 +66,16 @@ def flow_old(merge_df:list[pd.DataFrame], key1:str, key2:str, rfm_range:int, rfm
     pd.DataFrame
         Dataframe with base information of existing customers and the calculated RFM scores
     """    
+    
+    #TODO: warum nicht:
+    # commerce = merge_df1.\
+    #     merge(merge_df2, on=key1).\
+    #     merge(merge_df3, on=key2)
+	
     commerce = pd.merge(merge_df[0], merge_df[1], on=key1)
     commerce = commerce.merge(merge_df[2], on=key2)
+    
+    #TODO: warum nicht ganzen DF übergeben und dort auseinander? Grund: Länge muss dann gleich sein.
     rfm = create_rfm_df(sellers=commerce[rfm_vars[0]], orders=commerce[rfm_vars[1]], prices=commerce[rfm_vars[2]], time=commerce[rfm_vars[3]], rfm_range=rfm_range)
     return rfm
 
