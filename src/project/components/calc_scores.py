@@ -43,7 +43,7 @@ def calc_monetary(orders:pd.Series, prices:pd.Series, sellers:pd.Series) -> dict
     
     return  dict(zip(seller_revenues.index,seller_revenues.prices_y))
 
-def create_rfm_df(sellers:pd.Series, orders:pd.Series, prices:pd.Series, time:pd.Series, rfm_range:int) -> pd.DataFrame:
+def create_rfm_df(orders_df:pd.DataFrame, rfm_vars:list[str], rfm_range:int) -> pd.DataFrame:
     
     """Function which calculate the RFM score of each customer by calculation each R/F/M dimension to divide into classes. Lastly the mean is calculated of each seller over the 3 dimensions.
 

@@ -1,9 +1,10 @@
 from sklearn.linear_model import LogisticRegressionCV
 import pandas as pd
+import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
 
-def train_classifier(df:pd.DataFrame, feature_cols:list[str], target:str, test_size:float, cv:int, seed:int) -> tuple[LogisticRegressionCV, list, list]:
+def train_classifier(df:pd.DataFrame, feature_cols:list[str], target:str, test_size:float, cv:int, seed:int) -> tuple[LogisticRegressionCV, np.ndarray , np.ndarray]:
     X = df[feature_cols]
     y = df[target]
     X_train, X_test, y_train, y_test = train_test_split(X,y, test_size=test_size, random_state=seed)

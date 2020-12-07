@@ -3,7 +3,7 @@ import pandas as pd
 import sys
 sys.path.append('src/..')
 
-from src.dataflows.dataflow import flow_new, flow_old, flow_train
+from src.project.dataflows import flow_new, flow_old, flow_train
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--customers_type', type=str, choices=['old','new'])

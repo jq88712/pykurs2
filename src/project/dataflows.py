@@ -1,8 +1,8 @@
 import pandas as pd
 import pickle
-from src.components.calc_scores import create_rfm_df
-from src.components.transform_data import merge_dfs, transform_cat_var, create_bool_dummies, create_days2conversion, repl_na_bool
-from src.components.train_classifier import train_classifier, get_reports
+from src.project.components.calc_scores import create_rfm_df
+from src.general.utils import merge_dfs, transform_cat_var, create_bool_dummies, create_days2conversion, repl_na_bool
+from src.project.components.train_classifier import train_classifier, get_reports
 
 def flow_train(path:str, merge_df:list[pd.DataFrame], scores:pd.DataFrame) -> None:
 
@@ -37,17 +37,23 @@ def flow_train(path:str, merge_df:list[pd.DataFrame], scores:pd.DataFrame) -> No
 
     return print(get_reports(model, X_test, y_test))
 
-def flow_old(merge_df:list[pd.DataFrame], key1:str, key2:str, rfm_range:int, rfm_vars:list[pd.Series]) -> pd.DataFrame:
+def flow_old(merge_df1:pd.DataFrame, merge_df2:pd.DataFrame, merge_df3:pd.DataFrame, key1:str, key2:str, rfm_range:int, rfm_vars:list[str]) -> pd.DataFrame:
 
     """Dataflow to calculate RFM scores for existing customers based on past data.
 
     Parameters
     ----------
-    merge_df : list[pd.DataFrame]
-        Dataframes that need to be merged. Order in list is order of merging. Merging is limited to 3 dataframes
+    merge_df1 : pd.DataFrame
+        Dataframe to be merged with merge_df2
+    
+    merge_df2: pd.DataFrame
+        Dataframe to be merged with merge_df2
+    
+    merge_df3: pd.DataFrame
+        Dataframe to be merged with joined merge_df1 and merge_df2
 
     key1 : str
-        Key to merge first and second dataframe in merge_df
+        Key to merge merge_df1 and merge_df2
 
     key2 : str
         Key to merge third dataframe with previous joined dataframe of first and second dataframe in merge_df
@@ -55,7 +61,7 @@ def flow_old(merge_df:list[pd.DataFrame], key1:str, key2:str, rfm_range:int, rfm
     rfm_range : int
         Number of classes for RFM scores
 
-    rfm_vars : list[pd.Series]
+    rfm_vars : list[str]
         List of variables needed to calculate the RFM scores
 
     Returns
@@ -63,8 +69,8 @@ def flow_old(merge_df:list[pd.DataFrame], key1:str, key2:str, rfm_range:int, rfm
     pd.DataFrame
         Dataframe with base information of existing customers and the calculated RFM scores
     """    
-    commerce = pd.merge(merge_df[0], merge_df[1], on=key1)
-    commerce = commerce.merge(merge_df[2], on=key2)
+    commerce = pd.merge(merge_df1, merge_df2, on=key1)
+    commerce = commerce.merge(merge_df3, on=key2)
     rfm = create_rfm_df(sellers=commerce[rfm_vars[0]], orders=commerce[rfm_vars[1]], prices=commerce[rfm_vars[2]], time=commerce[rfm_vars[3]], rfm_range=rfm_range)
     return rfm
 
