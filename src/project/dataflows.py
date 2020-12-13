@@ -1,10 +1,12 @@
 import pandas as pd
 import pickle
+from typing import List
+
 from src.project.components.calc_scores import create_rfm_df
 from src.general.utils import merge_dfs, transform_cat_var, create_bool_dummies, create_days2conversion, repl_na_bool
 from src.project.components.train_classifier import train_classifier, get_reports
 
-def flow_train(path:str, merge_df:list[pd.DataFrame], scores:pd.DataFrame) -> None:
+def flow_train(path:str, merge_df:List[pd.DataFrame], scores:pd.DataFrame) -> None:
 
     """Dataflow for training a new model as predictor for new customers scores based on past data.
 
@@ -32,12 +34,12 @@ def flow_train(path:str, merge_df:list[pd.DataFrame], scores:pd.DataFrame) -> No
     train = transform_cat_var(df=train, col_list=['origin', 'business_segment', 'lead_type', 'lead_behaviour_profile', 'has_company', 'has_gtin', 'business_type', 'bool_declared_monthly_revenue', 'bool_declared_product_catalog_size', 'bool_average_stock'])
     train = train.set_index(train.seller_id).drop(labels=['seller_id'], axis=1)
     feature_cols = ['origin', 'business_segment', 'lead_type', 'lead_behaviour_profile','has_company', 'has_gtin', 'business_type','bool_declared_monthly_revenue', 'bool_declared_product_catalog_size', 'bool_average_stock', 'days2conversion']
-    model, X_test, y_test = train_classifier(df=train, feature_cols=feature_cols, target='rfm_score', test_size=0.1, cv=10, seed=42 )
+    model, X_test, y_test = train_classifier(train_data=train, feature_cols=feature_cols, target='rfm_score', test_size=0.1, cv=10, seed=42 )
     pickle.dump(model,open(path, 'wb'))
 
     return print(get_reports(model, X_test, y_test))
 
-def flow_old(merge_df1:pd.DataFrame, merge_df2:pd.DataFrame, merge_df3:pd.DataFrame, key1:str, key2:str, rfm_range:int, rfm_vars:list[str]) -> pd.DataFrame:
+def flow_old(merge_df1:pd.DataFrame, merge_df2:pd.DataFrame, merge_df3:pd.DataFrame, key1:str, key2:str, rfm_range:int, rfm_vars:List[str]) -> pd.DataFrame:
 
     """Dataflow to calculate RFM scores for existing customers based on past data.
 
@@ -69,19 +71,18 @@ def flow_old(merge_df1:pd.DataFrame, merge_df2:pd.DataFrame, merge_df3:pd.DataFr
     pd.DataFrame
         Dataframe with base information of existing customers and the calculated RFM scores
     """    
-    commerce = pd.merge(merge_df1, merge_df2, on=key1)
-    commerce = commerce.merge(merge_df3, on=key2)
-    rfm = create_rfm_df(sellers=commerce[rfm_vars[0]], orders=commerce[rfm_vars[1]], prices=commerce[rfm_vars[2]], time=commerce[rfm_vars[3]], rfm_range=rfm_range)
+    commerce = merge_df1.merge(merge_df2, on=key1).merge(merge_df3, on=key2)
+    rfm = create_rfm_df(orders_df=commerce, rfm_vars=rfm_vars, rfm_range=rfm_range)
     return rfm
 
-def flow_new(merge_df:list[pd.DataFrame], model_path:str) -> pd.DataFrame:
+def flow_new(new_customers:pd.DataFrame, model_path:str) -> pd.DataFrame:
     
     """Dataflow which predicts RFM score for new customers 
 
     Parameters
     ----------
-    merge_df : list[pd.DataFrame]
-        Dataframes that need to be merged
+    new_customers : pd.DataFrame
+        Dataframes with all variables needed for predicting new RFM scores of new customers
 
     model_path : str
         Path to directory where model is saved
@@ -91,7 +92,7 @@ def flow_new(merge_df:list[pd.DataFrame], model_path:str) -> pd.DataFrame:
     pd.DataFrame
         Dataframe with base information of new customers and the predicted RFM scores
     """    
-    marketing = merge_dfs(df_merge=merge_df, merge_var='mql_id', drop_vars=['sdr_id','sr_id'], na=['seller_id'])
+    marketing = new_customers
     marketing = create_bool_dummies(df=marketing, var_list=['declared_monthly_revenue', 'declared_product_catalog_size', 'average_stock'], rep_list=[0, 'unknown'])
     marketing = repl_na_bool(df=marketing, var_list=['has_company','has_gtin'], value='false')
     marketing = create_days2conversion(df= marketing, start='first_contact_date', end='won_date')

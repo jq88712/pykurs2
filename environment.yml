@@ -1,9 +1,0 @@
-name: pykurs2
-channels:
-  - defaults
-dependencies:
-  - python=3.8
-  - jupyter
-  - pandas
-  - jupyterlab
-prefix: C:\Users\jp-qu\Anaconda3\envs\pykurs2

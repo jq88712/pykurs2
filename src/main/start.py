@@ -1,5 +1,6 @@
 import argparse
 import pandas as pd
+
 import sys
 sys.path.append('src/..')
 
@@ -15,28 +16,29 @@ deals = pd.read_csv('./data/raw/olist_closed_deals_dataset.csv', encoding='utf-8
 items = pd.read_csv('./data/raw/olist_order_items_dataset.csv', encoding='utf-8')
 sellers = pd.read_csv('./data/raw/olist_sellers_dataset.csv', encoding='utf-8')
 orders = pd.read_csv('./data/raw/olist_orders_dataset.csv', encoding='utf-8')
+new = pd.read_csv('./data/raw/raw_new_customers.csv', encoding='utf-8')
 
 def main():
     if args.customers_type == 'old':
         #execute dataflow old customers
-        scores = flow_old(merge_df=[orders, items, sellers], key1='order_id', key2='seller_id', rfm_range=5, rfm_vars=['seller_id', 'order_id', 'price', 'order_purchase_timestamp'])
-        scores.to_csv('./data/processed/scores_historical_data.csv', encoding='utf-8')
+        scores = flow_old(merge_df1=orders, merge_df2=items, merge_df3=sellers, key1='order_id', key2='seller_id', rfm_range=5, rfm_vars=['seller_id', 'order_id', 'price', 'order_purchase_timestamp'])
+        scores.to_csv('./data/processed/scores_historical_data.csv', encoding='utf-8', index=False)
         print('Scores for old customers created and exported to data folder')
     else:
         if args.train == 'yes':
             #execute dataflow old customers
-            scores = flow_old(merge_df=[orders, items, sellers], key1='order_id', key2='seller_id', rfm_range=5, rfm_vars=['seller_id', 'order_id', 'price', 'order_purchase_timestamp'])
+            scores = flow_old(merge_df1=orders, merge_df2=items, merge_df3=sellers, key1='order_id', key2='seller_id', rfm_range=5, rfm_vars=['seller_id', 'order_id', 'price', 'order_purchase_timestamp'])
             #execute dataflow train
             flow_train(path='./data/model.pkl', merge_df=[leads, deals], scores=scores)
             #execute predict new customers
-            new_scores = flow_new(merge_df=[leads, deals], model_path='./data/model.pkl')
-            new_scores.to_csv('./data/processed/scores_new_customers.csv', encoding='utf-8')
+            new_scores = flow_new(new_customers=new, model_path='./data/model.pkl')
+            new_scores.to_csv('./data/processed/scores_new_customers.csv', encoding='utf-8', index=False)
             print('Scores for new customers created and exported to data folder')
 
         else: 
             #execute dataflow predict new customers
-            new_scores = flow_new(merge_df=[leads, deals], model_path='./data/model.pkl')
-            new_scores.to_csv('./data/processed/scores_new_customers.csv', encoding='utf-8')
+            new_scores = flow_new(new_customers=new, model_path='./data/model.pkl')
+            new_scores.to_csv('./data/processed/scores_new_customers.csv', encoding='utf-8', index=False)
             print('Scores for new customers created and exported to data folder')
 
 if __name__ == "__main__":
