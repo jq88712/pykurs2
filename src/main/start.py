@@ -1,15 +1,23 @@
 import argparse
 import pandas as pd
+import numpy as np
 
 import sys
 sys.path.append('src/..')
 
 from src.project.dataflows import flow_new, flow_old, flow_train
 
+# TODO: Hinzugefügt für bessere Anzeige in Python Console
+pd.set_option('display.width', 700)
+pd.options.display.max_colwidth = 100
+np.set_printoptions(linewidth=800)
+pd.set_option('display.max_rows', 100)
+pd.set_option('display.max_columns', 500)
+
 parser = argparse.ArgumentParser()
 parser.add_argument('--customers_type', type=str, choices=['old','new'])
 parser.add_argument('--train', type=str, choices=['yes', 'no'], default='no')
-args = parser.parse_args()
+args = parser.parse_args()  # TODO: Muss diese Zeile nicht in die main()?
 
 leads = pd.read_csv('./data/raw/olist_marketing_qualified_leads_dataset.csv', encoding='utf-8')
 deals = pd.read_csv('./data/raw/olist_closed_deals_dataset.csv', encoding='utf-8')
@@ -21,13 +29,28 @@ new = pd.read_csv('./data/raw/raw_new_customers.csv', encoding='utf-8')
 def main():
     if args.customers_type == 'old':
         #execute dataflow old customers
-        scores = flow_old(merge_df1=orders, merge_df2=items, merge_df3=sellers, key1='order_id', key2='seller_id', rfm_range=5, rfm_vars=['seller_id', 'order_id', 'price', 'order_purchase_timestamp'])
+
+        # TODO: Hier tun ein paar Zeilenumbrüche gut:
+        scores = flow_old(merge_df1=orders,
+                          merge_df2=items,
+                          merge_df3=sellers,
+                          key1='order_id',
+                          key2='seller_id',
+                          rfm_range=5,
+                          rfm_vars=['seller_id', 'order_id', 'price', 'order_purchase_timestamp'])
         scores.to_csv('./data/processed/scores_historical_data.csv', encoding='utf-8', index=False)
         print('Scores for old customers created and exported to data folder')
+
     else:
         if args.train == 'yes':
             #execute dataflow old customers
-            scores = flow_old(merge_df1=orders, merge_df2=items, merge_df3=sellers, key1='order_id', key2='seller_id', rfm_range=5, rfm_vars=['seller_id', 'order_id', 'price', 'order_purchase_timestamp'])
+            scores = flow_old(merge_df1=orders,
+                              merge_df2=items,
+                              merge_df3=sellers,
+                              key1='order_id',
+                              key2='seller_id',
+                              rfm_range=5,
+                              rfm_vars=['seller_id', 'order_id', 'price', 'order_purchase_timestamp'])
             #execute dataflow train
             flow_train(path='./data/model.pkl', merge_df=[leads, deals], scores=scores)
             #execute predict new customers

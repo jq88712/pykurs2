@@ -10,8 +10,12 @@ def merge_dfs(df_merge:list, merge_var:str, drop_vars:list, na:list) -> pd.DataF
 
 def create_bool_dummies(df:pd.DataFrame, var_list:list, rep_list:list) -> pd.DataFrame:
     for var in var_list:
-        df[var] = df[var].replace(to_replace=rep_list ,value= np.nan)
+        df[var] = df[var].replace(to_replace=rep_list, value= np.nan)
         df['bool_'+var] = ['False' if pd.isna(x) == True else 'True' for x in df[var]]
+
+        # TODO: Kompakter:
+        # df['bool_' + var] = (~df[var].isin(rep_list)).astype(str)
+
         df = df.drop(var, axis=1)
     return df
 

@@ -11,13 +11,15 @@ def calc_recency(sellers:pd.Series, time:pd.Series) -> dict:
             if time > recency[seller]:
                 recency[seller] = time
             else:
-                recency[seller] = recency[seller]
+                recency[seller] = recency[seller]  # TODO: Diese Zeile sieht nicht so aus, als würde sie etwas tun.
         else:
             recency[seller] = start
 
+    # TODO: Wäre hier nicht ein gruppierung mit einem min() oder max() möglich gewesen?
+
     for key in recency:
         recency[key] = (latest - recency[key]).days
-    
+
     return recency
 
 def calc_frequency(sellers:pd.Series) -> dict:
@@ -33,16 +35,22 @@ def calc_frequency(sellers:pd.Series) -> dict:
                 counter = counter
         counts.append(counter)
 
+    # TODO: Hätten Sie hier nicht ein groupby mit einem count() machen können?
+
     return dict(zip(unique_sellers,counts))
 
-def calc_monetary(orders:pd.Series, prices:pd.Series, sellers:pd.Series) -> dict:
-    frame = {'orders':orders, 'prices': prices, 'sellers': sellers}
+
+def calc_monetary(orders: pd.Series, prices: pd.Series, sellers: pd.Series) -> dict:
+    frame = {'orders': orders, 'prices': prices, 'sellers': sellers}
     df = pd.DataFrame(frame)
     orders_revenues = df.groupby(by='orders').sum()
-    df = df.merge(orders_revenues,on='orders')
+    df = df.merge(orders_revenues, on='orders')
     seller_revenues = df.groupby(by='sellers').sum().round(2)
-    
-    return  dict(zip(seller_revenues.index,seller_revenues.prices_y))
+
+    # TODO: Hätten Sie sich hier eine Gruppierung/Summierung nicht sparen können und einfach auf seller summieren?
+
+    return dict(zip(seller_revenues.index, seller_revenues.prices_y))
+
 
 def create_rfm_df(orders_df:pd.DataFrame, rfm_vars:List[str], rfm_range:int) -> pd.DataFrame:
     
@@ -69,6 +77,8 @@ def create_rfm_df(orders_df:pd.DataFrame, rfm_vars:List[str], rfm_range:int) -> 
     prices = orders_df[rfm_vars[2]]
     time = orders_df[rfm_vars[3]]
 
+    # TODO: Sie haben oben die Möglichkeit gelassen mit rfm_vars Einstellungen vorzunehmen, die unten aber hart gecoded sind (z.B. 'seller_id') - das ist ein Widerspruch!
+
     labels = range(1, (rfm_range+1))
     scores = pd.DataFrame()
     scores['seller_id'] = sellers.unique()
@@ -80,4 +90,4 @@ def create_rfm_df(orders_df:pd.DataFrame, rfm_vars:List[str], rfm_range:int) -> 
     scores['monetary_ratio'] = pd.qcut(scores.revenues,q=rfm_range, labels=labels)
     scores['rfm_score'] = scores[['recency','frequency', 'monetary_ratio']].mean(axis=1).round(0)
     
-    return scores  
+    return scores

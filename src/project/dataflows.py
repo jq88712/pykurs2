@@ -25,7 +25,9 @@ def flow_train(path:str, merge_df:List[pd.DataFrame], scores:pd.DataFrame) -> No
     -------
     [Print Output]
         Prints a classification report on the test data
-    """    
+    """
+    # TODO: Statt merge_df, zwei inputs verwenden
+
     train = merge_dfs(df_merge=merge_df, merge_var='mql_id', drop_vars=['sdr_id','sr_id'], na=['seller_id'])
     train = merge_dfs(df_merge=[train, scores], merge_var='seller_id', drop_vars=['mql_id', 'landing_page_id', 'revenues', 'count_orders', 'days_last_activity', 'recency', 'frequency', 'monetary_ratio'], na=['rfm_score'])
     train = create_bool_dummies(df=train, var_list=['declared_monthly_revenue', 'declared_product_catalog_size', 'average_stock'], rep_list=[0, 'unknown'])
